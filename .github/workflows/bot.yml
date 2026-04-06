@@ -19,7 +19,7 @@ jobs:
 
       - name: 📦 Install dependencies
         run: |
-          pip install -U discord.py wavelink
+          pip install -U discord.py wavelink pynacl
 
       - name: 🚀 Run bot
         env:
