@@ -66,8 +66,8 @@ async def on_ready():
 
 # 🎧 Wavelink Events (DEBUG GOLD 🔥)
 @bot.listen()
-async def on_wavelink_node_ready(node):
-    print(f"🟢 Node ready: {node.uri}")
+async def on_wavelink_node_ready(payload):
+    print(f"🟢 Node ready: {payload.node.identifier}")
 
 
 @bot.listen()
