@@ -126,20 +126,33 @@ async def play(interaction: discord.Interaction, query: str):
         if not tracks:
             return await interaction.followup.send("❌ No results found.")
 
-        # 📀 Playlist vs single
+        # Turn on AutoPlay to enabled mode.
+        player.autoplay = wavelink.AutoPlayMode.enabled
+
+        # Lock the player to this channel.
+        if not hasattr(player, "home"):
+            player.home = channel
+        elif player.home != channel:
+            return await interaction.followup.send(
+                f"You can only play songs in {player.home.mention}, as the player has already started there."
+            )
+
+        # 📀 Playlist vs single (queue-based playback logic)
         if isinstance(tracks, wavelink.Playlist):
-            track = tracks.tracks[0]
+            added = await player.queue.put_wait(tracks)
+            await interaction.followup.send(
+                f"Added the playlist **`{tracks.name}`** ({added} songs) to the queue."
+            )
         else:
             track = tracks[0]
+            print(f"🎵 Selected: {track.title}")
+            await player.queue.put_wait(track)
+            await interaction.followup.send(f"Added **`{track}`** to the queue.")
 
-        print(f"🎵 Selected: {track.title}")
-
-        # ▶️ Play
-        await player.play(track)
-
-        print("✅ Play command sent")
-
-        await interaction.followup.send(f"▶️ Playing: {track.title}")
+        if not player.playing:
+            # Play now since nothing is currently playing.
+            await player.play(player.queue.get(), volume=30)
+            print("✅ Play command sent")
 
     except Exception:
         print("💀 ERROR in /play:")
