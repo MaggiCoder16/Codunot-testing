@@ -162,12 +162,8 @@ async def playlist_create(interaction: discord.Interaction):
     await interaction.response.send_modal(PlaylistCreateModal())
 
 
-bot.tree.add_command(playlist_group)
-
-
-@bot.tree.command(name="playlists", description="List saved playlists or play one")
-@app_commands.describe(name="Optional playlist name to play")
-async def playlists(interaction: discord.Interaction, name: str | None = None):
+@bot.tree.command(name="playlists", description="List saved playlists")
+async def playlists(interaction: discord.Interaction):
     await interaction.response.defer()
 
     guild_id = str(interaction.guild_id)
@@ -176,9 +172,22 @@ async def playlists(interaction: discord.Interaction, name: str | None = None):
     if not guild_playlists:
         return await interaction.followup.send("❌ No playlists saved for this server yet. Use `/playlist create`.")
 
-    if not name:
-        lines = [f"• **{title}** ({len(songs)} songs)" for title, songs in guild_playlists.items()]
-        return await interaction.followup.send("📚 Saved playlists:\n" + "\n".join(lines))
+    lines = [f"• **{title}** ({len(songs)} songs)" for title, songs in guild_playlists.items()]
+    lines.append("")
+    lines.append("▶️ Play one with: `/playlist play name:<playlist name>`")
+    return await interaction.followup.send("📚 Saved playlists:\n" + "\n".join(lines))
+
+
+@playlist_group.command(name="play", description="Play a saved playlist")
+@app_commands.describe(name="Name of the saved playlist")
+async def playlist_play(interaction: discord.Interaction, name: str):
+    await interaction.response.defer()
+
+    guild_id = str(interaction.guild_id)
+    guild_playlists = playlists_store.get(guild_id, {})
+
+    if not guild_playlists:
+        return await interaction.followup.send("❌ No playlists saved for this server yet. Use `/playlist create`.")
 
     if name not in guild_playlists:
         return await interaction.followup.send("❌ Playlist not found. Use `/playlists` to view names.")
@@ -203,6 +212,9 @@ async def playlists(interaction: discord.Interaction, name: str | None = None):
         await player.play(player.queue.get(), volume=30)
 
     await interaction.followup.send(f"▶️ Added **{added}** songs from playlist **{name}** to the queue.")
+
+
+bot.tree.add_command(playlist_group)
 
 
 # 🎧 Wavelink Events (DEBUG GOLD 🔥)
