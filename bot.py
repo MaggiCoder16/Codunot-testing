@@ -26,7 +26,7 @@ playlists_store: dict[str, dict[str, list[str]]] = {}
 
 # 🔗 Lavalink Nodes (V4 ONLY)
 NODES = [
-    {"host": "lava-v4.ajieblogs.eu.org", "port": 443, "password": "https://dsc.gg/ajidevserver", "secure": True},
+    {"host": "n3.nexcloud.in", "port": 2026, "password": "nexcloud", "secure": False},
     {"host": "lava-all.ajieblogs.eu.org", "port": 443, "password": "https://dsc.gg/ajidevserver", "secure": True},
     {"host": "lava-v4.ajieblogs.eu.org", "port": 80, "password": "https://dsc.gg/ajidevserver", "secure": False},
     {"host": "lavalink.jirayu.net", "port": 443, "password": "youshallnotpass", "secure": True},
