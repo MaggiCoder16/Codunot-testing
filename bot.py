@@ -26,7 +26,12 @@ playlists_store: dict[str, dict[str, list[str]]] = {}
 
 # 🔗 Lavalink Nodes (V4 ONLY)
 NODES = [
-    { host: "lavalinkv4.serenetia.com", port: 443, password: "https://dsc.gg/ajidevserver", secure: true }
+    {
+        "host": "lavalinkv4.serenetia.com",
+        "port": 443,
+        "password": "https://dsc.gg/ajidevserver",
+        "secure": True,
+    }
 ]
 
 
