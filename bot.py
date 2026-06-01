@@ -31,6 +31,18 @@ NODES = [
         "port": 443,
         "password": "https://dsc.gg/ajidevserver",
         "secure": True,
+    },
+    {
+        "host": "n2.nexcloud.in",
+        "port": 2026,
+        "password": "nexcloud",
+        "secure": False,
+    },
+    {
+        "host": "n3.nexcloud.in",
+        "port": 2026,
+        "password": "nexcloud",
+        "secure": False,
     }
 ]
 
@@ -69,7 +81,7 @@ async def connect_nodes():
         for n in NODES
     ]
 
-    for i in range(5):
+    for i in range(3):
         try:
             print(f"🔄 Connecting to Lavalink... ({i+1}/5)")
             await wavelink.Pool.connect(nodes=nodes, client=bot)
