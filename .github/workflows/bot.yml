@@ -2,7 +2,6 @@ name: Discord Music Bot
 
 on:
   workflow_dispatch:
-  push:
   schedule:
     - cron: "0 */5 * * *"
 
