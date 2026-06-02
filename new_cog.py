@@ -65,26 +65,15 @@ TIER_BITRATES_KBPS = {
 }
 
 # 🔗 Lavalink Nodes (V4 ONLY)
-# Copied from bot.py so this cog uses the exact same Lavalink endpoints.
-NODES = [
-    {
-        "host": "lavalinkv4.serenetia.com",
-        "port": 443,
-        "password": "https://dsc.gg/ajidevserver",
-        "secure": True,
-    },
-    {
-        "host": "n2.nexcloud.in",
-        "port": 2026,
-        "password": "nexcloud",
-        "secure": False,
-    },
-    {
-        "host": "n3.nexcloud.in",
-        "port": 2026,
-        "password": "nexcloud",
-        "secure": False,
-    },
+# Supports both {"uri": "..."} and {"host": "...", "port": ..., "secure": ...} formats.
+LAVALINK_NODES = [
+    {"uri": "http://n3.nexcloud.in:2026", "password": "nexcloud"},
+    {"uri": "https://lava-v4.ajieblogs.eu.org:443", "password": "https://dsc.gg/ajidevserver"},
+    {"uri": "https://lavalinkv4.serenetia.com:443", "password": "https://dsc.gg/ajidevserver"},
+    {"host": "lava-v4.ajieblogs.eu.org", "port": 443, "password": "https://dsc.gg/ajidevserver", "secure": True},
+    {"host": "lava-all.ajieblogs.eu.org", "port": 443, "password": "https://dsc.gg/ajidevserver", "secure": True},
+    {"host": "lava-v4.ajieblogs.eu.org", "port": 80, "password": "https://dsc.gg/ajidevserver", "secure": False},
+    {"host": "lavalink.jirayu.net", "port": 443, "password": "youshallnotpass", "secure": True},
 ]
 
 
@@ -1435,13 +1424,14 @@ class Music(commands.Cog):
             if self._nodes_started and wavelink.Pool.nodes:
                 return
 
-            nodes = [
-                wavelink.Node(
-                    uri=f"http{'s' if n['secure'] else ''}://{n['host']}:{n['port']}",
-                    password=n["password"],
-                )
-                for n in NODES
-            ]
+            nodes: list[wavelink.Node] = []
+            for n in LAVALINK_NODES:
+                if "uri" in n:
+                    uri = _normalize_lavalink_uri(str(n["uri"]))
+                else:
+                    scheme = "https" if bool(n.get("secure", True)) else "http"
+                    uri = _normalize_lavalink_uri(f"{scheme}://{n['host']}:{int(n.get('port', 443))}")
+                nodes.append(wavelink.Node(uri=uri, password=n["password"]))
 
             for i in range(3):
                 try:
