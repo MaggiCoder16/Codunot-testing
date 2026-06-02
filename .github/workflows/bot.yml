@@ -31,6 +31,7 @@ jobs:
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
         run: |
+          wavelink --version
           python -u bot.py
 
       - name: 💾 Commit playlist changes
