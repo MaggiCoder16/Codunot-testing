@@ -1417,7 +1417,7 @@ class Music(commands.Cog):
             except Exception as e:
                 logger.error("[RAM] Cleanup failed: %s", e)
 
-async def _connect_lavalink_nodes_once(self) -> None:
+    async def _connect_lavalink_nodes_once(self) -> None:
         """Connect Lavalink exactly like bot.py: same nodes, same Pool.connect flow, same retries."""
         if self._nodes_started and wavelink.Pool.nodes:
             return
