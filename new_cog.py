@@ -68,12 +68,16 @@ TIER_BITRATES_KBPS = {
 # Supports both {"uri": "..."} and {"host": "...", "port": ..., "secure": ...} formats.
 # Put the HTTPS nodes first so one flaky HTTP node does not make startup look stuck on it.
 LAVALINK_NODES = [
-    {
-        "host": "n2.nexcloud.in",
-        "port": 2026,
-        "password": "nexcloud",
-        "secure": False,
-    }
+
+    {"uri": "http://n2.nexcloud.in:2026", "password": "nexcloud"},
+    {"uri": "http://n3.nexcloud.in:2026", "password": "nexcloud"},
+    {"uri": "https://lava-v4.ajieblogs.eu.org:443", "password": "https://dsc.gg/ajidevserver"},
+    {"uri": "https://lavalinkv4.serenetia.com:443", "password": "https://dsc.gg/ajidevserver"},
+    {"host": "lava-v4.ajieblogs.eu.org", "port": 443, "password": "https://dsc.gg/ajidevserver", "secure": True},
+    {"host": "lava-all.ajieblogs.eu.org", "port": 443, "password": "https://dsc.gg/ajidevserver", "secure": True},
+    {"host": "lava-v4.ajieblogs.eu.org", "port": 80, "password": "https://dsc.gg/ajidevserver", "secure": False},
+    {"host": "lavalink.jirayu.net", "port": 443, "password": "youshallnotpass", "secure": True},
+
 ]
 
 
