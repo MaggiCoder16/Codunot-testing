@@ -68,16 +68,13 @@ TIER_BITRATES_KBPS = {
 # Supports both {"uri": "..."} and {"host": "...", "port": ..., "secure": ...} formats.
 # Put the HTTPS nodes first so one flaky HTTP node does not make startup look stuck on it.
 LAVALINK_NODES = [
-
     {"uri": "http://n2.nexcloud.in:2026", "password": "nexcloud"},
     {"uri": "http://n3.nexcloud.in:2026", "password": "nexcloud"},
     {"uri": "https://lava-v4.ajieblogs.eu.org:443", "password": "https://dsc.gg/ajidevserver"},
     {"uri": "https://lavalinkv4.serenetia.com:443", "password": "https://dsc.gg/ajidevserver"},
-    {"host": "lava-v4.ajieblogs.eu.org", "port": 443, "password": "https://dsc.gg/ajidevserver", "secure": True},
-    {"host": "lava-all.ajieblogs.eu.org", "port": 443, "password": "https://dsc.gg/ajidevserver", "secure": True},
-    {"host": "lava-v4.ajieblogs.eu.org", "port": 80, "password": "https://dsc.gg/ajidevserver", "secure": False},
-    {"host": "lavalink.jirayu.net", "port": 443, "password": "youshallnotpass", "secure": True},
-
+    {"uri": "https://lava-all.ajieblogs.eu.org:443", "password": "https://dsc.gg/ajidevserver"},
+    {"uri": "http://lava-v4.ajieblogs.eu.org:80", "password": "https://dsc.gg/ajidevserver"},
+    {"uri": "https://lavalink.jirayu.net:443", "password": "youshallnotpass"},
 ]
 
 
@@ -1420,7 +1417,7 @@ class Music(commands.Cog):
             except Exception as e:
                 logger.error("[RAM] Cleanup failed: %s", e)
 
-    async def _connect_lavalink_nodes_once(self) -> None:
+async def _connect_lavalink_nodes_once(self) -> None:
         """Connect Lavalink exactly like bot.py: same nodes, same Pool.connect flow, same retries."""
         if self._nodes_started and wavelink.Pool.nodes:
             return
@@ -1428,34 +1425,32 @@ class Music(commands.Cog):
             if self._nodes_started and wavelink.Pool.nodes:
                 return
 
-            nodes: list[wavelink.Node] = []
-            for idx, n in enumerate(LAVALINK_NODES, start=1):
-                if "uri" in n:
-                    uri = _normalize_lavalink_uri(str(n["uri"]))
-                else:
-                    scheme = "https" if bool(n.get("secure", True)) else "http"
-                    uri = _normalize_lavalink_uri(f"{scheme}://{n['host']}:{int(n.get('port', 443))}")
-                nodes.append(wavelink.Node(
-                    identifier=f"Node-{idx}",
-                    uri=uri,
-                    password=n["password"],
-                    retries=1,
-                ))
-
-            print("🔗 Lavalink nodes configured:", ", ".join(node.uri for node in nodes))
-
             for i in range(3):
                 try:
-                    print(f"🔄 Connecting to Lavalink... ({i + 1}/5)")
+                    print(f"🔄 Connecting to Lavalink... ({i + 1}/3)")
+                    
+                    # Always build fresh Node instances on every single retry attempt
+                    nodes: list[wavelink.Node] = []
+                    for idx, n in enumerate(LAVALINK_NODES, start=1):
+                        uri = _normalize_lavalink_uri(str(n["uri"]))
+                        nodes.append(wavelink.Node(
+                            identifier=f"Node-{idx}",
+                            uri=uri,
+                            password=n["password"],
+                            retries=1,
+                        ))
+
+                    # Fire connection to the pool
                     await wavelink.Pool.connect(nodes=nodes, client=self.bot)
                     self._nodes_started = True
-                    print("✅ Lavalink connected")
+                    print("✅ Lavalink connected successfully")
                     return
                 except Exception as e:
-                    print(f"❌ Lavalink failed: {e}")
-                    await asyncio.sleep(5)
+                    print(f"❌ Lavalink pool connection attempt failed: {e}")
+                    if i < 2:
+                        await asyncio.sleep(5)
 
-            print("💀 All nodes failed")
+            print("💀 All nodes failed after exhausting retries")
 
     def _cancel_idle_disconnect(self, guild_id: int) -> None:
         task = self._idle_disconnect_tasks.pop(guild_id, None)
