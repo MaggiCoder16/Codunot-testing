@@ -31,7 +31,7 @@ jobs:
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
         run: |
-          python -u bot.py
+          python -u new_cog.py
 
       - name: 💾 Commit playlist changes
         if: always()
